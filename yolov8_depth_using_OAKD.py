@@ -5,10 +5,15 @@ import numpy as np
 
 # Define frame size and model input size
 FRAME_SIZE = (640, 400)
-DET_INPUT_SIZE = (640, 640)
+DET_INPUT_SIZE = (640, 640) 
+
+# Define the Bounding Box color and text
+BBOX_COLOR = (0, 0, 255)    # For Red (0, 0, 255) For Green (0, 255, 0) For Blue (255, 0, 0)
+BBOX_TEXT = "Depth: "
 model_name = None # "yolo-v4-tiny-tf"
 zoo_type = "depthai"
 blob_path = 'models/yolov8n_openvino_2022.1_6shave.blob'
+
 
 # Create pipeline
 pipeline = dai.Pipeline()
@@ -100,7 +105,6 @@ with dai.Device(pipeline) as device:
     # Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter('output.avi', fourcc, 12, (FRAME_SIZE[0], FRAME_SIZE[1]))
-
     while True:
         in_preview = preview_queue.get()
         in_det = det_queue.get()
@@ -122,8 +126,8 @@ with dai.Device(pipeline) as device:
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
             # Put depth information
             depth = int(detection.spatialCoordinates.z)
-            label = f"Depth: {depth} mm"
-            cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            label = f"{BBOX_TEXT} {depth} mm"
+            cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, BBOX_COLOR, 2)
 
         # Write the frame into the file 'output.avi'
         out.write(frame)
